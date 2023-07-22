@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from sklearn.utils.extmath import svd_flip, randomized_svd
 from scipy.sparse.linalg import svds
 import matplotlib.pyplot as plt
-from data import HankelDataset
+from .data import HankelDataset
 import time
 import os
 import sys

@@ -4,9 +4,10 @@ import numpy as np
 import os, sys
 from enum import Enum
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath('__file__'))
-if SCRIPT_DIR not in sys.path:
-    sys.path.append(SCRIPT_DIR)
+# sys.path.append('/Users/aniketkumar/Desktop/Aniket/ML/klcpd-pytorch/cpd')
+# from klcpd.klcpd_code import get_reduced_data, train_and_pred_dataset, save_preds
+from utils.klcpd_main import get_reduced_data, train_and_pred_dataset, save_preds
+print('Packages imported successfully!')
 
 file_dir = './__dataset'
 
