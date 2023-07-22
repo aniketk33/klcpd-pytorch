@@ -11,6 +11,10 @@ from sklearn.utils.extmath import svd_flip, randomized_svd
 from scipy.sparse.linalg import svds
 import matplotlib.pyplot as plt
 from data import HankelDataset
+import time
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print(f'Running on {device}')
 
 def median_heuristic(X, beta=0.5):
     max_n = min(30000, X.shape[0])
@@ -141,6 +145,7 @@ class KL_CPD(nn.Module):
 
 
     def fit(self, ts, epoches:int=100,lr:float=3e-4,weight_clip:float=.1,weight_decay:float=0.,momentum:float=0.):
+        print('***** Training *****')
         # must be defined in fit() method
         optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
 
@@ -257,9 +262,9 @@ def svd_wrapper(Y, k, method='svds'):
     return Ut, St, Vt
 
 def get_reduced_data(dataset, components, svd_method):
-    print(f'Original dataset shape: {dataset.shape}')
+    print(f'***** Original dataset shape: {dataset.shape} *****')
     X, _, _ = svd_wrapper(dataset, components, method=svd_method)
-    print(f'Reduced dataset shape: {X.shape}')
+    print(f'***** Reduced dataset shape: {X.shape} *****')
     return X
 
 
@@ -271,6 +276,7 @@ def train_and_pred_dataset(dataset):
 
 
 def save_preds(dataset, predictions, reduction_method, dataset_name, skip_components=0, save_preds=True):
+    print('***** Saving Predictions *****')
     components = dataset.shape[1]
     # get the min and max values for y-axis
     min_y=float('inf')
@@ -295,8 +301,10 @@ def save_preds(dataset, predictions, reduction_method, dataset_name, skip_compon
     plt.suptitle(f'{reduction_method} with {components-skip_components} component(s) visualization')
     plt.tight_layout()
     if save_preds:
-        plt.savefig(f'/direct/sdcc+u/akumar1/klcpd-preds/{reduction_method}_{components-skip_components}_{dataset_name}.png')
+        curr_time = time.strftime("%Y_%m_%d_%H_%M_%S")
+        plt.savefig(f'/hpcgpfs01/scratch/akumar/code/klcpd-preds/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}.png')
     plt.show()
+    print('***** DONE *****')
     
 if __name__ == '__main__':
     print(__package__)
