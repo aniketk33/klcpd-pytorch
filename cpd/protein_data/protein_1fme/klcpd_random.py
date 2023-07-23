@@ -1,11 +1,5 @@
-import sys
-import os
-import inspect
 import numpy as np
-
-# print(sys.path)
-from klcpd_code import get_reduced_data, train_and_pred_dataset, save_preds
-# from ..prepare_data import get_coordinates
+from utils.klcpd_main import get_reduced_data, train_and_pred_dataset, save_preds
 
 data = np.random.rand(100,4)
 svd_method = 'random'

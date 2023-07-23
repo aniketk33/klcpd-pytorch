@@ -1,7 +1,7 @@
 import torch
 import pandas as pd
 import numpy as np
-import os, sys
+import os
 from enum import Enum
 
 file_dir = './__dataset'
