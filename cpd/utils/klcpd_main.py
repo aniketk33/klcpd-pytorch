@@ -12,16 +12,9 @@ from scipy.sparse.linalg import svds
 import matplotlib.pyplot as plt
 from .data import HankelDataset
 import time
-import os
-import sys
-
-# SCRIPT_DIR = cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0]))
-# SCRIPT_DIR = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0]))
-# if SCRIPT_DIR not in sys.path:
-#     sys.path.append(SCRIPT_DIR)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-print(f'Running on {device}')
+print(f'Running on {device.upper()}')
 
 def median_heuristic(X, beta=0.5):
     max_n = min(30000, X.shape[0])
@@ -309,9 +302,6 @@ def save_preds(dataset, predictions, reduction_method, dataset_name, skip_compon
     plt.tight_layout()
     if save_preds:
         curr_time = time.strftime("%Y_%m_%d_%H_%M_%S")
-        plt.savefig(f'/hpcgpfs01/scratch/akumar/code/klcpd-preds/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}.png')
+        plt.savefig(f'/hpcgpfs01/scratch/akumar/code/cpd/klcpd-preds/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}.png')
     plt.show()
     print('***** DONE *****')
-    
-if __name__ == '__main__':
-    print(__package__)
