@@ -4,7 +4,7 @@ import numpy as np
 import os
 from enum import Enum
 
-file_dir = './__dataset'
+file_dir = '/hpcgpfs01/scratch/akumar/code/cpd/protein_data/__dataset__'
 
 class DatasetName(Enum):
     PROTEIN_19HT = '1h9t_traj.xyz', [6570, 8993, 3]
@@ -45,6 +45,11 @@ def get_coordinates(dataset_name):
     
     coordinates = raw_df.to_numpy(dtype=np.float32)
     coordinates = coordinates.reshape(shape)
+
+    # reshape to series of atoms coordinates for each frame
+    (x1, y1, z1) = coordinates.shape
+    coordinates = coordinates.reshape(x1, y1*z1, order='C')
+    # save as pickle
     torch.save(coordinates, pickle_file_name)
     
     return coordinates
