@@ -133,7 +133,7 @@ class KL_CPD(nn.Module):
 
     def predict(self, ts):
         dataset = HankelDataset(ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
-        dataloader = DataLoader(dataset, batch_size=128, shuffle=False)
+        dataloader = DataLoader(dataset, batch_size=64, shuffle=False)
         preds = []
         with torch.no_grad():
             for batch in dataloader:
@@ -144,16 +144,14 @@ class KL_CPD(nn.Module):
 
 
 
-    def fit(self, ts, epoches:int=100,lr:float=3e-4,weight_clip:float=.1,weight_decay:float=0.,momentum:float=0.):
+    def fit(self, ts, epoches:int=200,lr:float=5e-5,weight_clip:float=.5,weight_decay:float=0.01,momentum:float=0.):
         print('***** Training *****')
         # must be defined in fit() method
         optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
-
         optD = torch.optim.AdamW(self.netD.parameters(),lr=lr,weight_decay=weight_decay)
 
-
         dataset = HankelDataset(ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
-        dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
+        dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
         sigma_list = median_heuristic(dataset.Y_hankel, beta=.5)
         self.sigma_var = torch.FloatTensor(sigma_list).to(self.device)
 
@@ -165,13 +163,15 @@ class KL_CPD(nn.Module):
                     p.requires_grad = True
                 for p in self.netD.rnn_enc_layer.parameters():
                     p.data.clamp_(-weight_clip, weight_clip)
-                (D_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss) = self._optimizeD(batch, optD)
+                # (D_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss) = self._optimizeD(batch, optD)
+                self._optimizeD(batch, optD)
                 G_mmd2_mean = 0
                 if np.random.choice(np.arange(self.critic_iters)) == 0:
                     # Fit generator
                     for p in self.netD.parameters():
                         p.requires_grad = False  # to avoid computation
-                    G_mmd2_mean = self._optimizeG(batch, optG)
+                    # G_mmd2_mean = self._optimizeG(batch, optG)
+                    self._optimizeG(batch, optG)
                 
 #             print('[%5d/%5d] D_mmd2 %.4e G_mmd2 %.4e mmd2_real %.4e real_L2 %.6f fake_L2 %.6f'
 #               % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
@@ -203,7 +203,7 @@ class KL_CPD(nn.Module):
 
         opt.step()
 
-        return G_mmd2.mean().data.item()
+        # return G_mmd2.mean().data.item()
 
 
     def _optimizeD(self, batch, opt, grad_clip:int=10):
@@ -241,7 +241,7 @@ class KL_CPD(nn.Module):
 
         opt.step()
 
-        return D_mmd2.mean().data.item(), mmd2_real.mean().data.item(), real_L2_loss.data.item(), fake_L2_loss.data.item()
+        # return D_mmd2.mean().data.item(), mmd2_real.mean().data.item(), real_L2_loss.data.item(), fake_L2_loss.data.item()
     
 
 def svd_wrapper(Y, k, method='svds'):
