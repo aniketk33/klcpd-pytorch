@@ -1,7 +1,4 @@
 import numpy as np
-import os, sys
-# sys.path.append('/Users/aniketkumar/Desktop/Aniket/ML/klcpd-pytorch/cpd')
-from protein_data.prepare_data import get_coordinates
 from utils.klcpd_main import get_reduced_data, train_and_pred_dataset, save_preds
 
 data = np.random.rand(100,4)
