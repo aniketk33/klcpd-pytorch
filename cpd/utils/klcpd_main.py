@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 from sklearn.metrics.pairwise import euclidean_distances
-from tqdm import trange
+from tqdm import tqdm
 from torch.utils.data import DataLoader
 from sklearn.utils.extmath import svd_flip, randomized_svd
 from scipy.sparse.linalg import svds
@@ -145,7 +145,7 @@ class KL_CPD(nn.Module):
 
 
 
-    def fit(self, ts, epoches:int=200,lr:float=5e-5,weight_clip:float=.5,weight_decay:float=0.01,momentum:float=0., dataset_name=None):
+    def fit(self, ts, start_epoch, epoches:int=200,lr:float=5e-5,weight_clip:float=.5,weight_decay:float=0.01,momentum:float=0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
         optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
@@ -156,8 +156,8 @@ class KL_CPD(nn.Module):
         sigma_list = median_heuristic(dataset.Y_hankel, beta=.5)
         self.sigma_var = torch.FloatTensor(sigma_list).to(self.device)
 
-        tbar = trange(epoches)
-        for epoch in tbar:
+        # tbar = trange(epoches)
+        for epoch in tqdm(range(start_epoch, epoches)):
             for batch in dataloader:
                 # Fit critic
                 for p in self.netD.parameters():
@@ -277,7 +277,7 @@ def get_reduced_data(dataset, components, svd_method):
 def train_and_pred_dataset(dataset, dataset_name):
     '''If dataset name is not None, then save the model dict to file after each epoch'''
     dim_codar = dataset.shape[1]
-    
+    start_epoch = 0
     #get model state dict from the file
     if dataset_name:
         # check if folder exists if not then create it
@@ -293,7 +293,7 @@ def train_and_pred_dataset(dataset, dataset_name):
             model = KL_CPD(dim_codar).to(device)            
     else:        
         model = KL_CPD(dim_codar).to(device)
-    model.fit(dataset, dataset_name=dataset_name)
+    model.fit(dataset, dataset_name=dataset_name, start_epoch=start_epoch)
     return model.predict(dataset)
 
 
