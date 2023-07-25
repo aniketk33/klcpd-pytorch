@@ -289,6 +289,8 @@ def train_and_pred_dataset(dataset, dataset_name):
             # get the latest model file
             model_file = sorted(os.listdir(model_folder_path))[-1]
             model = torch.load(model_folder_path + model_file)
+            # get the epoch number from the model file name
+            start_epoch = int(model_file.split('_')[-1].split('.')[0])
         else:
             model = KL_CPD(dim_codar).to(device)            
     else:        
