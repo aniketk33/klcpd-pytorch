@@ -286,10 +286,12 @@ def train_and_pred_dataset(dataset, dataset_name):
         model_folder_path = f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/'
         if not os.path.exists(model_folder_path):
             os.makedirs(model_folder_path)
+        dir_files = os.listdir(model_folder_path)
         # check if folder is empty
-        if len(os.listdir(model_folder_path)) > 0:
-            # get the latest model file
-            model_file = sorted(os.listdir(model_folder_path))[-1]
+        if len(dir_files) > 0:
+            # get the latest model file by latest timestamp
+            sorted_files = sorted(dir_files, key=lambda x: os.path.getmtime(model_folder_path + x), reverse=True)
+            model_file = sorted_files[0]
             model.load_state_dict(torch.load(model_folder_path + model_file))
             # get the epoch number from the model file name
             start_epoch = int(model_file.split('_')[-1].split('.')[0])
