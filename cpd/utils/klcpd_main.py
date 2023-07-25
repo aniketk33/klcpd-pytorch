@@ -280,7 +280,10 @@ def train_and_pred_dataset(dataset, dataset_name):
     
     #get model state dict from the file
     if dataset_name:
+        # check if folder exists if not then create it
         model_folder_path = f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/model/{dataset_name}/'
+        if not os.path.exists(model_folder_path):
+            os.makedirs(model_folder_path)
         # check if folder is empty
         if os.listdir(model_folder_path) > 0:
             # get the latest model file
