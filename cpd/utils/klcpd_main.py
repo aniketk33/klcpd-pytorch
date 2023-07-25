@@ -285,7 +285,7 @@ def train_and_pred_dataset(dataset, dataset_name):
         if not os.path.exists(model_folder_path):
             os.makedirs(model_folder_path)
         # check if folder is empty
-        if os.listdir(model_folder_path) > 0:
+        if len(os.listdir(model_folder_path)) > 0:
             # get the latest model file
             model_file = sorted(os.listdir(model_folder_path))[-1]
             model = torch.load(model_folder_path + model_file)
