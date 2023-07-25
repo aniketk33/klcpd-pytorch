@@ -278,6 +278,8 @@ def train_and_pred_dataset(dataset, dataset_name):
     '''If dataset name is not None, then save the model dict to file after each epoch'''
     dim_codar = dataset.shape[1]
     start_epoch = 0
+    model = KL_CPD(dim_codar).to(device)
+
     #get model state dict from the file
     if dataset_name:
         # check if folder exists if not then create it
@@ -288,15 +290,14 @@ def train_and_pred_dataset(dataset, dataset_name):
         if len(os.listdir(model_folder_path)) > 0:
             # get the latest model file
             model_file = sorted(os.listdir(model_folder_path))[-1]
-            model = torch.load(model_folder_path + model_file)
+            model.load_state_dict(torch.load(model_folder_path + model_file))
             # get the epoch number from the model file name
             start_epoch = int(model_file.split('_')[-1].split('.')[0])
-        else:
-            model = KL_CPD(dim_codar).to(device)            
-    else:        
-        model = KL_CPD(dim_codar).to(device)
+            print(f'***** Loaded model from file: {model_file} with epoch {start_epoch} *****')
+        
     model.fit(dataset, dataset_name=dataset_name, start_epoch=start_epoch)
-    return model.predict(dataset)
+    predictions = model.predict(dataset)
+    return predictions
 
 
 def save_preds(dataset, predictions, reduction_method, dataset_name, skip_components=0, save_preds=True):
