@@ -12,6 +12,7 @@ from scipy.sparse.linalg import svds
 import matplotlib.pyplot as plt
 from .data import HankelDataset
 import time
+import os
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f'Running on {device.upper()}')
@@ -144,7 +145,7 @@ class KL_CPD(nn.Module):
 
 
 
-    def fit(self, ts, epoches:int=200,lr:float=5e-5,weight_clip:float=.5,weight_decay:float=0.01,momentum:float=0.):
+    def fit(self, ts, epoches:int=200,lr:float=5e-5,weight_clip:float=.5,weight_decay:float=0.01,momentum:float=0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
         optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
@@ -172,7 +173,12 @@ class KL_CPD(nn.Module):
                         p.requires_grad = False  # to avoid computation
                     # G_mmd2_mean = self._optimizeG(batch, optG)
                     self._optimizeG(batch, optG)
-                
+            
+            #saving model dict to file after every 5 epochs
+            if dataset_name:
+                if epoch % 5 == 0:
+                    torch.save(self.state_dict(), f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/model/{dataset_name}/model_{epoch}.pt')
+
 #             print('[%5d/%5d] D_mmd2 %.4e G_mmd2 %.4e mmd2_real %.4e real_L2 %.6f fake_L2 %.6f'
 #               % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
 
@@ -268,11 +274,24 @@ def get_reduced_data(dataset, components, svd_method):
     return X
 
 
-def train_and_pred_dataset(dataset):
+def train_and_pred_dataset(dataset, dataset_name):
+    '''If dataset name is not None, then save the model dict to file after each epoch'''
     dim_codar = dataset.shape[1]
-    model_codar = KL_CPD(dim_codar).to(device)
-    model_codar.fit(dataset)
-    return model_codar.predict(dataset)
+    
+    #get model state dict from the file
+    if dataset_name:
+        model_folder_path = f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/model/{dataset_name}/'
+        # check if folder is empty
+        if os.listdir(model_folder_path) > 0:
+            # get the latest model file
+            model_file = sorted(os.listdir(model_folder_path))[-1]
+            model = torch.load(model_folder_path + model_file)
+        else:
+            model = KL_CPD(dim_codar).to(device)            
+    else:        
+        model = KL_CPD(dim_codar).to(device)
+    model.fit(dataset, dataset_name=dataset_name)
+    return model.predict(dataset)
 
 
 def save_preds(dataset, predictions, reduction_method, dataset_name, skip_components=0, save_preds=True):
