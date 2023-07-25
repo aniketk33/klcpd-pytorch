@@ -177,7 +177,7 @@ class KL_CPD(nn.Module):
             #saving model dict to file after every 5 epochs
             if dataset_name:
                 if epoch % 5 == 0:
-                    torch.save(self.state_dict(), f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/model/{dataset_name}/model_{epoch}.pt')
+                    torch.save(self.state_dict(), f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/model_{epoch}.pt')
 
 #             print('[%5d/%5d] D_mmd2 %.4e G_mmd2 %.4e mmd2_real %.4e real_L2 %.6f fake_L2 %.6f'
 #               % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
@@ -281,7 +281,7 @@ def train_and_pred_dataset(dataset, dataset_name):
     #get model state dict from the file
     if dataset_name:
         # check if folder exists if not then create it
-        model_folder_path = f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/model/{dataset_name}/'
+        model_folder_path = f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/'
         if not os.path.exists(model_folder_path):
             os.makedirs(model_folder_path)
         # check if folder is empty
