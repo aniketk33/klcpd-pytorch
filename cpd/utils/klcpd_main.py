@@ -311,7 +311,7 @@ def train_and_pred_dataset(dataset, dataset_name, svd_method, components):
             start_epoch = min(int(netd_files[0].split('_')[-1].split('.')[0]), int(netg_files[0].split('_')[-1].split('.')[0]))
             print(f'***** Loaded model from file: {netd_files[0]} and {netg_files[0]} with epoch {start_epoch} *****')
         
-    model.fit(dataset, dataset_name=dataset_name, start_epoch=start_epoch)
+    model.fit(dataset, dataset_name=dataset_name, start_epoch=start_epoch, svd_method=svd_method, components=components)
     predictions = model.predict(dataset)
     return predictions
 
