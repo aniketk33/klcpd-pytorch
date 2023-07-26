@@ -275,7 +275,7 @@ def get_reduced_data(dataset, components, svd_method):
     return X
 
 
-def train_and_pred_dataset(dataset, dataset_name):
+def train_and_pred_dataset(dataset, dataset_name, svd_method, components):
     '''If dataset name is not None, then save the model dict to file after each epoch'''
     dimension = dataset.shape[1]
     start_epoch = 0
@@ -284,32 +284,28 @@ def train_and_pred_dataset(dataset, dataset_name):
     #get model state dict from the file
     if dataset_name:
         # check if folder exists if not then create it
-        model_folder_path = f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/'
+        model_folder_path = f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/{svd_method}_{components}/'
         if not os.path.exists(model_folder_path):
             os.makedirs(model_folder_path)
         dir_files = os.listdir(model_folder_path)
+        
         # check if folder is empty
         if len(dir_files) > 0:
             # sort files that starts with netd and netg
             netd_files = [file for file in dir_files if file.startswith('netd')]
             netg_files = [file for file in dir_files if file.startswith('netg')]
+            
             # sort files with latest timestamp
             netd_files = sorted(netd_files, key=lambda x: os.path.getmtime(model_folder_path + x), reverse=True)
             netg_files = sorted(netg_files, key=lambda x: os.path.getmtime(model_folder_path + x), reverse=True)
+            
             # load the latest file from netd and netg
             net_d_params = torch.load(model_folder_path + netd_files[0])
             net_g_params = torch.load(model_folder_path + netg_files[0])
+
             # load params to model
             model.netD.load_state_dict(net_d_params)
             model.netG.load_state_dict(net_g_params)
-
-            # get the latest model file by latest timestamp
-            # sorted_files = sorted(dir_files, key=lambda x: os.path.getmtime(model_folder_path + x), reverse=True)
-            # model_file = sorted_files[0]
-            # model_params = torch.load(model_folder_path + model_file)
-            # model.net_d_params = model_params[0]
-            # model.net_g_params = model_params['netG']
-            # model.load_state_dict
 
             # get the epoch number from the model file name. if epoch number is different then choose the min epoch number
             start_epoch = min(int(netd_files[0].split('_')[-1].split('.')[0]), int(netg_files[0].split('_')[-1].split('.')[0]))
