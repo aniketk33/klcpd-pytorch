@@ -145,7 +145,7 @@ class KL_CPD(nn.Module):
 
 
 
-    def fit(self, ts, start_epoch, epoches:int=200,lr:float=5e-5,weight_clip:float=.5,weight_decay:float=0.01,momentum:float=0., dataset_name=None):
+    def fit(self, ts, start_epoch, svd_method, components, epoches:int=200,lr:float=5e-5,weight_clip:float=.5,weight_decay:float=0.01,momentum:float=0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
         optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
@@ -177,8 +177,8 @@ class KL_CPD(nn.Module):
             #saving model dict to file after every 5 epochs
             if dataset_name:
                 if epoch % 5 == 0:
-                    torch.save(self.netD.state_dict(), f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/netd_{epoch}.pt')
-                    torch.save(self.netG.state_dict(), f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/netg_{epoch}.pt')
+                    torch.save(self.netD.state_dict(), f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/{svd_method}_{components}/netd_{epoch}.pt')
+                    torch.save(self.netG.state_dict(), f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/{svd_method}_{components}/netg_{epoch}.pt')
 
 #             print('[%5d/%5d] D_mmd2 %.4e G_mmd2 %.4e mmd2_real %.4e real_L2 %.6f fake_L2 %.6f'
 #               % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
