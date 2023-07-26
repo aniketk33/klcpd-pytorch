@@ -5,17 +5,7 @@ Traceback (most recent call last):
   File "/hpcgpfs01/scratch/akumar/code/cpd/protein_data/protein_19ht/random_3.py", line 8, in <module>
     preds = train_and_pred_dataset(data_reduced, dataset_name='protein_19ht')
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/hpcgpfs01/scratch/akumar/code/cpd/utils/klcpd_main.py", line 295, in train_and_pred_dataset
-    model.load_state_dict(torch.load(model_folder_path + model_file))
-  File "/hpcgpfs01/scratch/akumar/miniconda3/envs/cuda_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 2041, in load_state_dict
-    raise RuntimeError('Error(s) in loading state_dict for {}:\n\t{}'.format(
-RuntimeError: Error(s) in loading state_dict for KL_CPD:
-	size mismatch for netD.rnn_enc_layer.weight_ih_l0: copying a param with shape torch.Size([30, 4]) from checkpoint, the shape in current model is torch.Size([30, 3]).
-	size mismatch for netD.rnn_dec_layer.weight_ih_l0: copying a param with shape torch.Size([12, 10]) from checkpoint, the shape in current model is torch.Size([9, 10]).
-	size mismatch for netD.rnn_dec_layer.weight_hh_l0: copying a param with shape torch.Size([12, 4]) from checkpoint, the shape in current model is torch.Size([9, 3]).
-	size mismatch for netD.rnn_dec_layer.bias_ih_l0: copying a param with shape torch.Size([12]) from checkpoint, the shape in current model is torch.Size([9]).
-	size mismatch for netD.rnn_dec_layer.bias_hh_l0: copying a param with shape torch.Size([12]) from checkpoint, the shape in current model is torch.Size([9]).
-	size mismatch for netG.rnn_enc_layer.weight_ih_l0: copying a param with shape torch.Size([30, 4]) from checkpoint, the shape in current model is torch.Size([30, 3]).
-	size mismatch for netG.rnn_dec_layer.weight_ih_l0: copying a param with shape torch.Size([30, 4]) from checkpoint, the shape in current model is torch.Size([30, 3]).
-	size mismatch for netG.fc_layer.weight: copying a param with shape torch.Size([4, 10]) from checkpoint, the shape in current model is torch.Size([3, 10]).
-	size mismatch for netG.fc_layer.bias: copying a param with shape torch.Size([4]) from checkpoint, the shape in current model is torch.Size([3]).
+  File "/hpcgpfs01/scratch/akumar/code/cpd/utils/klcpd_main.py", line 289, in train_and_pred_dataset
+    os.makedirs(model_folder_path)
+  File "<frozen os>", line 225, in makedirs
+FileExistsError: [Errno 17] File exists: '/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/protein_19ht/'

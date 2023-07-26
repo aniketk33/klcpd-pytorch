@@ -1,22 +1,6 @@
 Running on CUDA
 ***** Original dataset shape: (6570, 26979) *****
 ***** Reduced dataset shape: (6570, 2) *****
-Traceback (most recent call last):
-  File "/hpcgpfs01/scratch/akumar/code/cpd/protein_data/protein_19ht/svds_2.py", line 8, in <module>
-    preds = train_and_pred_dataset(data_reduced, dataset_name='protein_19ht')
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/hpcgpfs01/scratch/akumar/code/cpd/utils/klcpd_main.py", line 295, in train_and_pred_dataset
-    model.load_state_dict(torch.load(model_folder_path + model_file))
-  File "/hpcgpfs01/scratch/akumar/miniconda3/envs/cuda_env/lib/python3.11/site-packages/torch/nn/modules/module.py", line 2041, in load_state_dict
-    raise RuntimeError('Error(s) in loading state_dict for {}:\n\t{}'.format(
-RuntimeError: Error(s) in loading state_dict for KL_CPD:
-	size mismatch for netD.rnn_enc_layer.weight_ih_l0: copying a param with shape torch.Size([30, 4]) from checkpoint, the shape in current model is torch.Size([30, 2]).
-	size mismatch for netD.rnn_dec_layer.weight_ih_l0: copying a param with shape torch.Size([12, 10]) from checkpoint, the shape in current model is torch.Size([6, 10]).
-	size mismatch for netD.rnn_dec_layer.weight_hh_l0: copying a param with shape torch.Size([12, 4]) from checkpoint, the shape in current model is torch.Size([6, 2]).
-	size mismatch for netD.rnn_dec_layer.bias_ih_l0: copying a param with shape torch.Size([12]) from checkpoint, the shape in current model is torch.Size([6]).
-	size mismatch for netD.rnn_dec_layer.bias_hh_l0: copying a param with shape torch.Size([12]) from checkpoint, the shape in current model is torch.Size([6]).
-	size mismatch for netG.rnn_enc_layer.weight_ih_l0: copying a param with shape torch.Size([30, 4]) from checkpoint, the shape in current model is torch.Size([30, 2]).
-	size mismatch for netG.rnn_dec_layer.weight_ih_l0: copying a param with shape torch.Size([30, 4]) from checkpoint, the shape in current model is torch.Size([30, 2]).
-	size mismatch for netG.fc_layer.weight: copying a param with shape torch.Size([4, 10]) from checkpoint, the shape in current model is torch.Size([2, 10]).
-	size mismatch for netG.fc_layer.bias: copying a param with shape torch.Size([4]) from checkpoint, the shape in current model is torch.Size([2]).
-slurmstepd: error: *** JOB 1692751 ON voltahost001 CANCELLED AT 2023-07-25T16:32:23 ***
+***** Loaded model from file: netd_5.pt and netg_5.pt with epoch 5 *****
+***** Training *****
+  0%|                                                                                    | 0/195 [00:00<?, ?it/s]  1%|▍                                                                           | 1/195 [00:08<27:57,  8.65s/it]  1%|▊                                                                           | 2/195 [00:16<27:11,  8.45s/it]  2%|█▏                                                                          | 3/195 [00:25<26:28,  8.27s/it]  2%|█▌                                                                          | 4/195 [00:33<26:20,  8.27s/it]  3%|█▉                                                                          | 5/195 [00:41<26:02,  8.23s/it]  3%|██▎                                                                         | 6/195 [00:49<25:48,  8.19s/it]  4%|██▋                                                                         | 7/195 [00:57<25:47,  8.23s/it]  4%|███                                                                         | 8/195 [01:05<25:30,  8.18s/it]  5%|███▌                                                                        | 9/195 [01:14<25:16,  8.15s/it]  5%|███▊                                                                       | 10/195 [01:22<24:58,  8.10s/it]  6%|████▏                                                                      | 11/195 [01:30<24:53,  8.12s/it]  6%|████▌                                                                      | 12/195 [01:38<24:56,  8.18s/it]  7%|█████                                                                      | 13/195 [01:46<24:48,  8.18s/it]  7%|█████▍                                                                     | 14/195 [01:54<24:42,  8.19s/it]  8%|█████▊                                                                     | 15/195 [02:03<24:42,  8.24s/it]slurmstepd: error: *** JOB 1693368 ON voltahost001 CANCELLED AT 2023-07-26T11:40:59 ***

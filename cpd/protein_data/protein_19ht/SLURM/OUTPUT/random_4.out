@@ -1,6 +1,11 @@
 Running on CUDA
 ***** Original dataset shape: (6570, 26979) *****
 ***** Reduced dataset shape: (6570, 4) *****
-***** Loaded model from file: model_195.pt with epoch 195 *****
-***** Training *****
-  0%|                                                                                             | 0/5 [00:00<?, ?it/s] 20%|█████████████████                                                                    | 1/5 [00:10<00:42, 10.54s/it] 40%|██████████████████████████████████                                                   | 2/5 [00:18<00:27,  9.31s/it]slurmstepd: error: *** JOB 1692750 ON voltahost001 CANCELLED AT 2023-07-25T16:32:49 ***
+Traceback (most recent call last):
+  File "/hpcgpfs01/scratch/akumar/code/cpd/protein_data/protein_19ht/random_4.py", line 8, in <module>
+    preds = train_and_pred_dataset(data_reduced, dataset_name='protein_19ht')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpcgpfs01/scratch/akumar/code/cpd/utils/klcpd_main.py", line 289, in train_and_pred_dataset
+    os.makedirs(model_folder_path)
+  File "<frozen os>", line 225, in makedirs
+FileExistsError: [Errno 17] File exists: '/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/protein_19ht/'
