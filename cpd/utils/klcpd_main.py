@@ -176,7 +176,7 @@ class KL_CPD(nn.Module):
             
             #saving model dict to file after every 5 epochs
             if dataset_name:
-                if epoch % 5 == 0:
+                if epoch % 2 == 0:
                     torch.save(self.netD.state_dict(), f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/{svd_method}_{components}/netd_{epoch}.pt')
                     torch.save(self.netG.state_dict(), f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/{svd_method}_{components}/netg_{epoch}.pt')
 
