@@ -156,10 +156,10 @@ class KL_CPD(nn.Module):
     def fit(self, ts, start_epoch, svd_method, components, epoches:int=150,lr:float=3e-5,weight_clip:float=.1,weight_decay:float=0.,momentum:float=0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
-        optim_g = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
-        optG = lr_scheduler.LambdaLR(optim_g, lambda epoch: 1.0 / (1.0 + 10 * epoch))
-        optim_d = torch.optim.AdamW(self.netD.parameters(),lr=lr,weight_decay=weight_decay)
-        optD = lr_scheduler.LambdaLR(optim_d, lambda epoch: 1.0 / (1.0 + 10 * epoch))
+        optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
+        lr_scheduler_g = lr_scheduler.LambdaLR(optG, lambda epoch: 1.0 / (1.0 + 10 * epoch))
+        optD = torch.optim.AdamW(self.netD.parameters(),lr=lr,weight_decay=weight_decay)
+        lr_scheduler_d = lr_scheduler.LambdaLR(optD, lambda epoch: 1.0 / (1.0 + 10 * epoch))
 
         dataset = HankelDataset(ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
         dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
@@ -175,14 +175,14 @@ class KL_CPD(nn.Module):
                 for p in self.netD.rnn_enc_layer.parameters():
                     p.data.clamp_(-weight_clip, weight_clip)
                 # (D_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss) = self._optimizeD(batch, optD)
-                self._optimizeD(batch, optD)
+                self._optimizeD(batch, optD, lr_scheduler_d)
                 # G_mmd2_mean = 0
                 if np.random.choice(np.arange(self.critic_iters)) == 0:
                     # Fit generator
                     for p in self.netD.parameters():
                         p.requires_grad = False  # to avoid computation
                     # G_mmd2_mean = self._optimizeG(batch, optG)
-                    self._optimizeG(batch, optG)
+                    self._optimizeG(batch, optG, lr_scheduler_g)
             
             #saving model dict to file after every 5 epochs
             if dataset_name:
@@ -194,7 +194,7 @@ class KL_CPD(nn.Module):
 #               % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
 
 
-    def _optimizeG(self, batch, opt, grad_clip:int=10):
+    def _optimizeG(self, batch, opt, lr_scheduler, grad_clip:int=10):
         X_p, X_f = [batch[key].float().to(self.device) for key in ['X_p', 'X_f']]
         batch_size = X_p.size(0)
 
@@ -218,12 +218,13 @@ class KL_CPD(nn.Module):
 
         torch.nn.utils.clip_grad_norm_(self.netG.parameters(), grad_clip)
 
+        lr_scheduler.step()
         opt.step()
 
         # return G_mmd2.mean().data.item()
 
 
-    def _optimizeD(self, batch, opt, grad_clip:int=10):
+    def _optimizeD(self, batch, opt, lr_scheduler, grad_clip:int=10):
         X_p, X_f, Y_true = [batch[key].float().to(self.device) for key in ['X_p', 'X_f', 'Y']]
         batch_size = X_p.size(0)
 
@@ -256,6 +257,7 @@ class KL_CPD(nn.Module):
 
         torch.nn.utils.clip_grad_norm_(self.netD.parameters(), grad_clip)
 
+        lr_scheduler.step()
         opt.step()
 
         # return D_mmd2.mean().data.item(), mmd2_real.mean().data.item(), real_L2_loss.data.item(), fake_L2_loss.data.item()
