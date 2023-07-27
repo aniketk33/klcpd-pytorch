@@ -14,6 +14,13 @@ from .data import HankelDataset
 import time
 import os
 
+# load env variables
+from dotenv import load_dotenv
+load_dotenv()
+
+SAVE_MODEL_DIR_PATH = os.environ['SAVE_MODEL_DIR_PATH']
+PREDS_DIR_PATH = os.environ['PREDS_DIR_PATH']
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f'Running on {device.upper()}')
 
@@ -177,8 +184,8 @@ class KL_CPD(nn.Module):
             #saving model dict to file after every 5 epochs
             if dataset_name:
                 if epoch % 2 == 0:
-                    torch.save(self.netD.state_dict(), f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/{svd_method}_{components}/netd_{epoch}.pt')
-                    torch.save(self.netG.state_dict(), f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/{svd_method}_{components}/netg_{epoch}.pt')
+                    torch.save(self.netD.state_dict(), f'{SAVE_MODEL_DIR_PATH}/{dataset_name}/{svd_method}_{components}/netd_{epoch}.pt')
+                    torch.save(self.netG.state_dict(), f'{SAVE_MODEL_DIR_PATH}/{dataset_name}/{svd_method}_{components}/netg_{epoch}.pt')
 
 #             print('[%5d/%5d] D_mmd2 %.4e G_mmd2 %.4e mmd2_real %.4e real_L2 %.6f fake_L2 %.6f'
 #               % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
@@ -284,7 +291,7 @@ def train_and_pred_dataset(dataset, dataset_name, svd_method, components):
     #get model state dict from the file
     if dataset_name:
         # check if folder exists if not then create it
-        model_folder_path = f'/hpcgpfs01/scratch/akumar/code/cpd/checkpoints/models/{dataset_name}/{svd_method}_{components}/'
+        model_folder_path = f'{SAVE_MODEL_DIR_PATH}/{dataset_name}/{svd_method}_{components}/'
         if not os.path.exists(model_folder_path):
             os.makedirs(model_folder_path)
         dir_files = os.listdir(model_folder_path)
@@ -309,7 +316,7 @@ def train_and_pred_dataset(dataset, dataset_name, svd_method, components):
 
             # get the epoch number from the model file name. if epoch number is different then choose the min epoch number
             start_epoch = min(int(netd_files[0].split('_')[-1].split('.')[0]), int(netg_files[0].split('_')[-1].split('.')[0]))
-            print(f'***** Loaded model from file: {netd_files[0]} and {netg_files[0]} with epoch {start_epoch} *****')
+            print(f'***** Loaded model from file: {svd_method}_{components}/{netd_files[0]} and {svd_method}_{components}/{netg_files[0]} with epoch {start_epoch} *****')
         
     model.fit(dataset, dataset_name=dataset_name, start_epoch=start_epoch, svd_method=svd_method, components=components)
     predictions = model.predict(dataset)
@@ -343,6 +350,6 @@ def save_preds(dataset, predictions, reduction_method, dataset_name, skip_compon
     plt.tight_layout()
     if save_preds:
         curr_time = time.strftime("%Y_%m_%d_%H_%M_%S")
-        plt.savefig(f'/hpcgpfs01/scratch/akumar/code/cpd/klcpd-preds/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}.png')
+        plt.savefig(f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}.png')
     plt.show()
     print('***** DONE *****')

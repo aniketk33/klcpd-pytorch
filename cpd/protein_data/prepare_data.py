@@ -3,8 +3,11 @@ import pandas as pd
 import numpy as np
 import os
 from enum import Enum
+# load env variables
+from dotenv import load_dotenv
+load_dotenv()
 
-file_dir = '/hpcgpfs01/scratch/akumar/code/cpd/protein_data/__dataset__'
+DATASET_DIR_PATH = os.environ['DATASET_DIR_PATH']
 
 class DatasetName(Enum):
     PROTEIN_19HT = '1h9t_traj.xyz', [6570, 8993, 3]
@@ -24,9 +27,9 @@ def get_details(dataset_name):
 def check_pkl_file(file_name):
     file_arr = file_name.split('.')
     pkl_file_name = '_'.join(file_arr) + '.pkl'
-    files = os.listdir(file_dir)    
+    files = os.listdir(DATASET_DIR_PATH)    
     
-    return pkl_file_name in files, f'{file_dir}/{pkl_file_name}'
+    return pkl_file_name in files, f'{DATASET_DIR_PATH}/{pkl_file_name}'
 
 
 def get_coordinates(dataset_name):
@@ -37,7 +40,7 @@ def get_coordinates(dataset_name):
         coordinates = torch.load(pickle_file_name)
         return coordinates
     
-    df = pd.read_fwf(f'{file_dir}/{file_name}')
+    df = pd.read_fwf(f'{DATASET_DIR_PATH}/{file_name}')
     raw_df = df[[df.columns[1], df.columns[2], df.columns[3]]]
     
     # remove NaN
