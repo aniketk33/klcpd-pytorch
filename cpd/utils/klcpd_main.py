@@ -7,6 +7,7 @@ from torch.autograd import Variable
 from sklearn.metrics.pairwise import euclidean_distances
 from tqdm import tqdm
 from torch.utils.data import DataLoader
+import torch.optim.lr_scheduler as lr_scheduler
 from sklearn.utils.extmath import svd_flip, randomized_svd
 from scipy.sparse.linalg import svds
 import matplotlib.pyplot as plt
@@ -141,7 +142,7 @@ class KL_CPD(nn.Module):
 
     def predict(self, ts):
         dataset = HankelDataset(ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
-        dataloader = DataLoader(dataset, batch_size=64, shuffle=False)
+        dataloader = DataLoader(dataset, batch_size=128, shuffle=False)
         preds = []
         with torch.no_grad():
             for batch in dataloader:
@@ -152,14 +153,16 @@ class KL_CPD(nn.Module):
 
 
 
-    def fit(self, ts, start_epoch, svd_method, components, epoches:int=200,lr:float=5e-5,weight_clip:float=.5,weight_decay:float=0.01,momentum:float=0., dataset_name=None):
+    def fit(self, ts, start_epoch, svd_method, components, epoches:int=150,lr:float=3e-5,weight_clip:float=.1,weight_decay:float=0.,momentum:float=0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
-        optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
-        optD = torch.optim.AdamW(self.netD.parameters(),lr=lr,weight_decay=weight_decay)
+        optim_g = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
+        optG = lr_scheduler.LambdaLR(optim_g, lambda epoch: 1.0 / (1.0 + 10 * epoch))
+        optim_d = torch.optim.AdamW(self.netD.parameters(),lr=lr,weight_decay=weight_decay)
+        optD = lr_scheduler.LambdaLR(optim_d, lambda epoch: 1.0 / (1.0 + 10 * epoch))
 
         dataset = HankelDataset(ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
-        dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+        dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
         sigma_list = median_heuristic(dataset.Y_hankel, beta=.5)
         self.sigma_var = torch.FloatTensor(sigma_list).to(self.device)
 
@@ -173,7 +176,7 @@ class KL_CPD(nn.Module):
                     p.data.clamp_(-weight_clip, weight_clip)
                 # (D_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss) = self._optimizeD(batch, optD)
                 self._optimizeD(batch, optD)
-                G_mmd2_mean = 0
+                # G_mmd2_mean = 0
                 if np.random.choice(np.arange(self.critic_iters)) == 0:
                     # Fit generator
                     for p in self.netD.parameters():
