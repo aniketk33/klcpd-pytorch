@@ -282,8 +282,8 @@ def get_reduced_data(dataset, components, svd_method):
     return X
 
 
-def train_and_pred_dataset(dataset, dataset_name, svd_method, components):
-    '''If dataset name is not None, then save the model dict to file after each epoch'''
+def train_and_pred_dataset(dataset, dataset_name, svd_method, components, preload_model=False):
+    '''If dataset name is not None, then save the model dict to file after each epoch. If preload_model is True, then load the model from file and continue training'''
     dimension = dataset.shape[1]
     start_epoch = 0
     model = KL_CPD(dimension).to(device)
@@ -296,8 +296,8 @@ def train_and_pred_dataset(dataset, dataset_name, svd_method, components):
             os.makedirs(model_folder_path)
         dir_files = os.listdir(model_folder_path)
         
-        # check if folder is empty
-        if len(dir_files) > 0:
+        # check if folder is empty and check if reset_model_folder is False
+        if len(dir_files) > 0 and preload_model:
             # sort files that starts with netd and netg
             netd_files = [file for file in dir_files if file.startswith('netd')]
             netg_files = [file for file in dir_files if file.startswith('netg')]
