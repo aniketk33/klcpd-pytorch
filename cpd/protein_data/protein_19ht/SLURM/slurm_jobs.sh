@@ -1,10 +1,10 @@
 #!/bin/sh
 source ~/.bashrc
-#SBATCH -o $PROJ_DIR_PATH/cpd/protein_data/protein_19ht/SLURM/slurm_jobs.out
-#SBATCH -p $PARTITION
-#SBATCH -t $TIME
+#SBATCH -o /hpcgpfs01/scratch/akumar/code/cpd/protein_data/protein_19ht/SLURM/slurm_jobs.out
+#SBATCH -p $SBATCH_PARTITION
+#SBATCH -t $SBATCH_TIMELIMIT
 #SBATCH --gres=gpu:1
-#SBATCH -A $ACCOUNT
+#SBATCH -A $SBATCH_ACCOUNT
 #SBATCH -J slurm_jobs
 
 sbatch $PROJ_DIR_PATH/cpd/protein_data/protein_19ht/SLURM/random_2.sh
