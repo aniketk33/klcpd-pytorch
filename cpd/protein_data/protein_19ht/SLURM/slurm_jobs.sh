@@ -1,6 +1,6 @@
 #!/bin/sh
 #SBATCH -o /hpcgpfs01/scratch/akumar/code/cpd/protein_data/protein_19ht/SLURM/slurm_jobs.out
-#SBATCH -p voltadebug
+#SBATCH -p volta
 #SBATCH -t 02:30:00
 #SBATCH --gres=gpu:1
 #SBATCH -A student-v
