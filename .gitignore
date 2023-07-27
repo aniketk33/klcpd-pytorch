@@ -1,5 +1,9 @@
+# project related files
 klcpd-preds
 __dataset__
+# slurm related files
+*.out 
+*.pt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
