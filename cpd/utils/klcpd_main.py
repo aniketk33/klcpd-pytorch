@@ -157,9 +157,9 @@ class KL_CPD(nn.Module):
         print('***** Training *****')
         # must be defined in fit() method
         optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
-        lr_scheduler_g = lr_scheduler.LambdaLR(optG, lambda epoch: 1.0 / (1.0 + 10 * epoch))
+        lr_scheduler_g = lr_scheduler.ReduceLROnPlateau(optG, mode='min', factor=0.2, patience=10)
         optD = torch.optim.AdamW(self.netD.parameters(),lr=lr,weight_decay=weight_decay)
-        lr_scheduler_d = lr_scheduler.LambdaLR(optD, lambda epoch: 1.0 / (1.0 + 10 * epoch))
+        lr_scheduler_d = lr_scheduler.ReduceLROnPlateau(optD, mode='min', factor=0.2, patience=10)
 
         dataset = HankelDataset(ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
         dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
@@ -355,6 +355,6 @@ def save_preds(dataset, predictions, reduction_method, dataset_name, skip_compon
     plt.tight_layout()
     if save_preds:
         curr_time = time.strftime("%Y_%m_%d_%H_%M_%S")
-        plt.savefig(f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}.png')
+        plt.savefig(f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}_reducelr.png')
     plt.show()
     print('***** DONE *****')
