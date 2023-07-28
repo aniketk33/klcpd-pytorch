@@ -219,7 +219,7 @@ class KL_CPD(nn.Module):
         torch.nn.utils.clip_grad_norm_(self.netG.parameters(), grad_clip)
 
         opt.step()
-        lr_scheduler.step()
+        lr_scheduler.step(lossG)
 
         # return G_mmd2.mean().data.item()
 
@@ -258,7 +258,7 @@ class KL_CPD(nn.Module):
         torch.nn.utils.clip_grad_norm_(self.netD.parameters(), grad_clip)
 
         opt.step()
-        lr_scheduler.step()
+        lr_scheduler.step(lossD)
 
         # return D_mmd2.mean().data.item(), mmd2_real.mean().data.item(), real_L2_loss.data.item(), fake_L2_loss.data.item()
     
