@@ -6,6 +6,7 @@
 #SBATCH -A student-v
 #SBATCH -J slurm_jobs
 
+source ~/.bashrc
 sbatch $PROJ_DIR_PATH/cpd/protein_data/protein_19ht/SLURM/random_2.sh
 
 sbatch $PROJ_DIR_PATH/cpd/protein_data/protein_19ht/SLURM/random_3.sh
