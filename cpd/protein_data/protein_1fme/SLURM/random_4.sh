@@ -7,5 +7,4 @@
 #SBATCH -J 1fme_r_4
 
 source ~/.bashrc
-conda activate cuda_env
-python /hpcgpfs01/scratch/akumar/code/cpd/protein_data/protein_1fme/random_4.py
+python $PROJ_DIR_PATH/cpd/protein_data/protein_1fme/random_4.py
