@@ -6,5 +6,5 @@ data = get_coordinates(dataset_name)
 svd_method = 'svds'
 components = 3
 data_reduced = get_reduced_data(data, components, svd_method)
-preds = train_and_pred_dataset(data_reduced, dataset_name.lower(), svd_method, components)
+preds = train_and_pred_dataset(data_reduced, dataset_name.lower(), svd_method, components, preload_model=True)
 save_preds(data_reduced, preds, svd_method, dataset_name.lower())
