@@ -154,7 +154,6 @@ class KL_CPD(nn.Module):
         return np.concatenate(preds)
 
 
-
     def fit(self, ts, start_epoch, svd_method, components, epoches:int=150,lr:float=3e-5,weight_clip:float=.1,weight_decay:float=0.,momentum:float=0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
@@ -267,7 +266,7 @@ class KL_CPD(nn.Module):
 
         # return D_mmd2.mean().data.item(), mmd2_real.mean().data.item(), real_L2_loss.data.item(), fake_L2_loss.data.item()
     
-    
+
     def plot_losses(self, reduction_method:str, components:int, dataset_name:str):
         curr_time = time.strftime("%Y_%m_%d_%H_%M_%S")
 
@@ -277,6 +276,7 @@ class KL_CPD(nn.Module):
         plt.legend()
         plt.savefig(f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components}_{dataset_name}_loss.png')
         plt.show()
+
 
 def svd_wrapper(Y, k, method='svds'):
     if method == 'svds':
@@ -294,6 +294,7 @@ def svd_wrapper(Y, k, method='svds'):
         Vt = Vt[:k, :]
         
     return Ut, St, Vt
+
 
 def get_reduced_data(dataset, components, svd_method):
     print(f'***** Original dataset shape: {dataset.shape} *****')
