@@ -94,6 +94,8 @@ class KL_CPD(nn.Module):
         self.RNN_hid_dim = RNN_hid_dim
         self.netD = NetD(self.var_dim, RNN_hid_dim)
         self.netG = NetG(self.var_dim, RNN_hid_dim)
+        self.loss_g_list = []
+        self.loss_d_list = []
 
 
     @property
@@ -189,7 +191,8 @@ class KL_CPD(nn.Module):
                 if epoch % 2 == 0:
                     torch.save(self.netD.state_dict(), f'{SAVE_MODEL_DIR_PATH}/{dataset_name}/{svd_method}_{components}/netd_{epoch}.pt')
                     torch.save(self.netG.state_dict(), f'{SAVE_MODEL_DIR_PATH}/{dataset_name}/{svd_method}_{components}/netg_{epoch}.pt')
-
+        print('***** Plotting losses for Generator and Discriminator models *****')
+        self.plot_losses(reduction_method=svd_method, components=components, dataset_name=dataset_name)
             # print('[%5d/%5d] D_mmd2 %.4e G_mmd2 %.4e mmd2_real %.4e real_L2 %.6f fake_L2 %.6f'
             #   % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
 
@@ -214,6 +217,7 @@ class KL_CPD(nn.Module):
         self.netG.zero_grad()
         lossG = G_mmd2.mean()
         #lossG = 0.0 * G_mmd2.mean()
+        self.loss_g_list.append(lossG.data.item())
         lossG.backward()
 
         torch.nn.utils.clip_grad_norm_(self.netG.parameters(), grad_clip)
@@ -253,6 +257,7 @@ class KL_CPD(nn.Module):
         self.netD.zero_grad()
         lossD = D_mmd2.mean() - self.lambda_ae * (real_L2_loss + fake_L2_loss) - self.lambda_real * mmd2_real.mean()
         lossD = -lossD
+        self.loss_d_list.append(lossD.data.item())
         lossD.backward()
 
         torch.nn.utils.clip_grad_norm_(self.netD.parameters(), grad_clip)
@@ -262,6 +267,16 @@ class KL_CPD(nn.Module):
 
         # return D_mmd2.mean().data.item(), mmd2_real.mean().data.item(), real_L2_loss.data.item(), fake_L2_loss.data.item()
     
+    
+    def plot_losses(self, reduction_method:str, components:int, dataset_name:str):
+        curr_time = time.strftime("%Y_%m_%d_%H_%M_%S")
+
+        plt.figure(figsize=(10, 5))
+        plt.plot(self.loss_g_list, label='loss_g')
+        plt.plot(self.loss_d_list, label='loss_d')
+        plt.legend()
+        plt.savefig(f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components}_{dataset_name}_loss.png')
+        plt.show()
 
 def svd_wrapper(Y, k, method='svds'):
     if method == 'svds':
