@@ -157,9 +157,9 @@ class KL_CPD(nn.Module):
         print('***** Training *****')
         # must be defined in fit() method
         optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
-        lr_scheduler_g = lr_scheduler.ReduceLROnPlateau(optG, mode='min', factor=0.2, patience=10)
+        lr_scheduler_g = lr_scheduler.ExponentialLR(optG, gamma=0.99)
         optD = torch.optim.AdamW(self.netD.parameters(),lr=lr,weight_decay=weight_decay)
-        lr_scheduler_d = lr_scheduler.ReduceLROnPlateau(optD, mode='min', factor=0.2, patience=10)
+        lr_scheduler_d = lr_scheduler.ExponentialLR(optD, gamma=0.99)
 
         dataset = HankelDataset(ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
         dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
@@ -184,14 +184,14 @@ class KL_CPD(nn.Module):
                     # G_mmd2_mean = self._optimizeG(batch, optG)
                     self._optimizeG(batch, optG, lr_scheduler_g)
             
-            #saving model dict to file after every 5 epochs
+            # saving model dict to file after every 5 epochs
             if dataset_name:
                 if epoch % 2 == 0:
                     torch.save(self.netD.state_dict(), f'{SAVE_MODEL_DIR_PATH}/{dataset_name}/{svd_method}_{components}/netd_{epoch}.pt')
                     torch.save(self.netG.state_dict(), f'{SAVE_MODEL_DIR_PATH}/{dataset_name}/{svd_method}_{components}/netg_{epoch}.pt')
 
-#             print('[%5d/%5d] D_mmd2 %.4e G_mmd2 %.4e mmd2_real %.4e real_L2 %.6f fake_L2 %.6f'
-#               % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
+            # print('[%5d/%5d] D_mmd2 %.4e G_mmd2 %.4e mmd2_real %.4e real_L2 %.6f fake_L2 %.6f'
+            #   % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
 
 
     def _optimizeG(self, batch, opt, lr_scheduler, grad_clip:int=10):
@@ -219,7 +219,7 @@ class KL_CPD(nn.Module):
         torch.nn.utils.clip_grad_norm_(self.netG.parameters(), grad_clip)
 
         opt.step()
-        lr_scheduler.step(lossG)
+        lr_scheduler.step()
 
         # return G_mmd2.mean().data.item()
 
@@ -258,7 +258,7 @@ class KL_CPD(nn.Module):
         torch.nn.utils.clip_grad_norm_(self.netD.parameters(), grad_clip)
 
         opt.step()
-        lr_scheduler.step(lossD)
+        lr_scheduler.step()
 
         # return D_mmd2.mean().data.item(), mmd2_real.mean().data.item(), real_L2_loss.data.item(), fake_L2_loss.data.item()
     
@@ -355,6 +355,6 @@ def save_preds(dataset, predictions, reduction_method, dataset_name, skip_compon
     plt.tight_layout()
     if save_preds:
         curr_time = time.strftime("%Y_%m_%d_%H_%M_%S")
-        plt.savefig(f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}_reducelr.png')
+        plt.savefig(f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}_expolr.png')
     plt.show()
     print('***** DONE *****')
