@@ -61,10 +61,16 @@ def get_coordinates(dataset_name):
 
 
 def get_codar_coordinates():
-    codar_data = sio.loadmat(CODAR_FILE_PATH)
-    (x1, y1, z1) = codar_data['trace'].shape
+    """Get coordinates from codar.mat file with added noise"""
+    codar_file = sio.loadmat(CODAR_FILE_PATH)
+    (x1, y1, z1) = codar_file['trace'].shape
+    buffer_set = codar_file['trace'].copy()
+    for i in range(0,51):
+        test_set = buffer_set
+        D_filt = np.random.normal(1,.5, size = (9033,3))
+        test_set[i+49] += D_filt
     
-    return codar_data['trace'].reshape(x1, y1*z1, order='C')
+    return test_set.reshape(x1, y1*z1, order='C')
 
 
 if __name__ == '__main__':
