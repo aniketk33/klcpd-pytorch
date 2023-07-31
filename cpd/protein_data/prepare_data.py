@@ -3,11 +3,13 @@ import pandas as pd
 import numpy as np
 import os
 from enum import Enum
+import scipy.io as sio
 # load env variables
 from dotenv import load_dotenv
 load_dotenv()
 
 DATASET_DIR_PATH = os.environ['DATASET_DIR_PATH']
+CODAR_FILE_PATH = f"{DATASET_DIR_PATH}/codar.mat"
 
 class DatasetName(Enum):
     PROTEIN_19HT = '1h9t_traj.xyz', [6570, 8993, 3]
@@ -58,8 +60,16 @@ def get_coordinates(dataset_name):
     return coordinates
 
 
+def get_codar_coordinates():
+    codar_data = sio.loadmat(CODAR_FILE_PATH)
+    (x1, y1, z1) = codar_data['trace'].shape
+    
+    return codar_data['trace'].reshape(x1, y1*z1, order='C')
+
+
 if __name__ == '__main__':
     dataset_name = 'PROTEIN_19HT'
-    X = get_coordinates(dataset_name)
+    # X = get_coordinates(dataset_name)
+    X = get_codar_coordinates()
     print(X.shape)
     
