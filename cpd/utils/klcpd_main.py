@@ -154,7 +154,7 @@ class KL_CPD(nn.Module):
         return np.concatenate(preds)
 
 
-    def fit(self, ts, start_epoch, svd_method, components, epoches:int=150,lr:float=3e-5,weight_clip:float=.1,weight_decay:float=0.,momentum:float=0., dataset_name=None):
+    def fit(self, ts, start_epoch, svd_method, components, epoches:int=100,lr:float=3e-5,weight_clip:float=.1,weight_decay:float=0.,momentum:float=0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
         optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
@@ -178,12 +178,12 @@ class KL_CPD(nn.Module):
                 # (D_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss) = self._optimizeD(batch, optD)
                 self._optimizeD(batch, optD)
                 # G_mmd2_mean = 0
-                if np.random.choice(np.arange(self.critic_iters)) == 0:
-                    # Fit generator
-                    for p in self.netD.parameters():
-                        p.requires_grad = False  # to avoid computation
-                    # G_mmd2_mean = self._optimizeG(batch, optG)
-                    self._optimizeG(batch, optG)
+                # if np.random.choice(np.arange(self.critic_iters)) == 0:
+                # Fit generator
+                for p in self.netD.parameters():
+                    p.requires_grad = False  # to avoid computation
+                # G_mmd2_mean = self._optimizeG(batch, optG)
+                self._optimizeG(batch, optG)
             
             # saving model dict to file after every 5 epochs
             if dataset_name:
@@ -373,6 +373,6 @@ def save_preds(dataset, predictions, reduction_method, dataset_name, skip_compon
     plt.tight_layout()
     if save_preds:
         curr_time = time.strftime("%Y_%m_%d_%H_%M_%S")
-        plt.savefig(f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}_cosinelr.png')
+        plt.savefig(f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}.png')
     plt.show()
     print('***** DONE *****')
