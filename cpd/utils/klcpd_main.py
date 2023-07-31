@@ -176,14 +176,14 @@ class KL_CPD(nn.Module):
                 for p in self.netD.rnn_enc_layer.parameters():
                     p.data.clamp_(-weight_clip, weight_clip)
                 # (D_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss) = self._optimizeD(batch, optD)
-                self._optimizeD(batch, optD, lr_scheduler_d)
+                self._optimizeD(batch, optD)
                 # G_mmd2_mean = 0
                 if np.random.choice(np.arange(self.critic_iters)) == 0:
                     # Fit generator
                     for p in self.netD.parameters():
                         p.requires_grad = False  # to avoid computation
                     # G_mmd2_mean = self._optimizeG(batch, optG)
-                    self._optimizeG(batch, optG, lr_scheduler_g)
+                    self._optimizeG(batch, optG)
             
             # saving model dict to file after every 5 epochs
             if dataset_name:
@@ -196,7 +196,7 @@ class KL_CPD(nn.Module):
             #   % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
 
 
-    def _optimizeG(self, batch, opt, lr_scheduler, grad_clip:int=10):
+    def _optimizeG(self, batch, opt, lr_scheduler=None, grad_clip:int=10):
         X_p, X_f = [batch[key].float().to(self.device) for key in ['X_p', 'X_f']]
         batch_size = X_p.size(0)
 
@@ -222,12 +222,13 @@ class KL_CPD(nn.Module):
         torch.nn.utils.clip_grad_norm_(self.netG.parameters(), grad_clip)
 
         opt.step()
-        lr_scheduler.step()
+        if lr_scheduler:
+            lr_scheduler.step()
 
         # return G_mmd2.mean().data.item()
 
 
-    def _optimizeD(self, batch, opt, lr_scheduler, grad_clip:int=10):
+    def _optimizeD(self, batch, opt, lr_scheduler=None, grad_clip:int=10):
         X_p, X_f, Y_true = [batch[key].float().to(self.device) for key in ['X_p', 'X_f', 'Y']]
         batch_size = X_p.size(0)
 
@@ -262,7 +263,8 @@ class KL_CPD(nn.Module):
         torch.nn.utils.clip_grad_norm_(self.netD.parameters(), grad_clip)
 
         opt.step()
-        lr_scheduler.step()
+        if lr_scheduler:
+            lr_scheduler.step()
 
         # return D_mmd2.mean().data.item(), mmd2_real.mean().data.item(), real_L2_loss.data.item(), fake_L2_loss.data.item()
     
