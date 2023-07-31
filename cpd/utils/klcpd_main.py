@@ -157,9 +157,9 @@ class KL_CPD(nn.Module):
         print('***** Training *****')
         # must be defined in fit() method
         optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
-        lr_scheduler_g = lr_scheduler.ExponentialLR(optG, gamma=0.99)
+        lr_scheduler_g = lr_scheduler.ConstantLR(optG)
         optD = torch.optim.AdamW(self.netD.parameters(),lr=lr,weight_decay=weight_decay)
-        lr_scheduler_d = lr_scheduler.ExponentialLR(optD, gamma=0.99)
+        lr_scheduler_d = lr_scheduler.ConstantLR(optD)
 
         dataset = HankelDataset(ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
         dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
@@ -355,6 +355,6 @@ def save_preds(dataset, predictions, reduction_method, dataset_name, skip_compon
     plt.tight_layout()
     if save_preds:
         curr_time = time.strftime("%Y_%m_%d_%H_%M_%S")
-        plt.savefig(f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}_expolr.png')
+        plt.savefig(f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components-skip_components}_{dataset_name}_constantlr.png')
     plt.show()
     print('***** DONE *****')
