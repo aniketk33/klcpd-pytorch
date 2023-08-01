@@ -81,8 +81,8 @@ class NetD(nn.Module):
 
 class KL_CPD(nn.Module):
     def __init__(self, D:int, critic_iters:int=5,
-            lambda_ae:float=0.001, lambda_real:float=0.1,
-            p_wnd_dim:int=3, f_wnd_dim:int=3, sub_dim:int=1, RNN_hid_dim:int=10):
+            lambda_ae:float=1e-5, lambda_real:float=1e-3,
+            p_wnd_dim:int=5, f_wnd_dim:int=2, sub_dim:int=1, RNN_hid_dim:int=15):
         super().__init__()
         self.p_wnd_dim = p_wnd_dim
         self.f_wnd_dim = f_wnd_dim
@@ -204,7 +204,8 @@ class KL_CPD(nn.Module):
         X_f_enc, X_f_dec = self.netD(X_f)
 
         # fake data
-        noise = torch.FloatTensor(1, batch_size, self.RNN_hid_dim).normal_(0, 1).to(self.device)
+        noise = torch.FloatTensor(1, batch_size, self.RNN_hid_dim).uniform_(-1, 1).to(self.device)
+        # noise = torch.FloatTensor(1, batch_size, self.RNN_hid_dim).normal_(0, 1).to(self.device)
         noise = Variable(noise)
         Y_f = self.netG(X_p, X_f, noise)
         Y_f_enc, Y_f_dec = self.netD(Y_f)
@@ -237,7 +238,8 @@ class KL_CPD(nn.Module):
         X_f_enc, X_f_dec = self.netD(X_f)
 
         # fake data
-        noise = torch.FloatTensor(1, batch_size, self.netG.RNN_hid_dim).normal_(0, 1).to(self.device)
+        noise = torch.FloatTensor(1, batch_size, self.netG.RNN_hid_dim).uniform_(-1, 1).to(self.device)
+        # noise = torch.FloatTensor(1, batch_size, self.netG.RNN_hid_dim).normal_(0, 1).to(self.device)
         noise = Variable(noise) # total freeze netG
         torch.no_grad()
         Y_f = Variable(self.netG(X_p, X_f, noise).data)
