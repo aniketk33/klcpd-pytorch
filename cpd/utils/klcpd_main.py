@@ -82,7 +82,7 @@ class NetD(nn.Module):
 class KL_CPD(nn.Module):
     def __init__(self, D:int, critic_iters:int=5,
             lambda_ae:float=0.001, lambda_real:float=0.1,
-            p_wnd_dim:int=25, f_wnd_dim:int=10, sub_dim:int=1, RNN_hid_dim:int=10):
+            p_wnd_dim:int=3, f_wnd_dim:int=3, sub_dim:int=1, RNN_hid_dim:int=10):
         super().__init__()
         self.p_wnd_dim = p_wnd_dim
         self.f_wnd_dim = f_wnd_dim
@@ -154,13 +154,13 @@ class KL_CPD(nn.Module):
         return np.concatenate(preds)
 
 
-    def fit(self, ts, start_epoch, svd_method, components, epoches:int=100,lr:float=3e-5,weight_clip:float=.1,weight_decay:float=0.,momentum:float=0., dataset_name=None):
+    def fit(self, ts, start_epoch, svd_method, components, epoches:int=100,lr:float=1e-5,weight_clip:float=.1,weight_decay:float=0.,momentum:float=0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
         optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
-        lr_scheduler_g = lr_scheduler.CosineAnnealingLR(optG, T_max=epoches, eta_min=3e-5)
+        # lr_scheduler_g = lr_scheduler.CosineAnnealingLR(optG, T_max=epoches, eta_min=3e-5)
         optD = torch.optim.AdamW(self.netD.parameters(),lr=lr,weight_decay=weight_decay)
-        lr_scheduler_d = lr_scheduler.CosineAnnealingLR(optD, T_max=epoches, eta_min=3e-5)
+        # lr_scheduler_d = lr_scheduler.CosineAnnealingLR(optD, T_max=epoches, eta_min=3e-5)
 
         dataset = HankelDataset(ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
         dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
