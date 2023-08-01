@@ -4,7 +4,7 @@ __dataset__
 # slurm related files
 *.out 
 # *.pt
-checkpoints
+# checkpoints
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
