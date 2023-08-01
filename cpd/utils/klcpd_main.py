@@ -154,7 +154,7 @@ class KL_CPD(nn.Module):
         return np.concatenate(preds)
 
 
-    def fit(self, ts, start_epoch, svd_method, components, epoches:int=100,lr:float=1e-5,weight_clip:float=.1,weight_decay:float=0.,momentum:float=0., dataset_name=None):
+    def fit(self, ts, start_epoch, svd_method, components, epoches:int=1000,lr:float=1e-8,weight_clip:float=.1,weight_decay:float=0.,momentum:float=0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
         optG = torch.optim.AdamW(self.netG.parameters(),lr=lr,weight_decay=weight_decay)
