@@ -1,9 +1,9 @@
 # project related files
-klcpd-preds
+# klcpd-preds
 __dataset__
 # slurm related files
 *.out 
-*.pt
+# *.pt
 checkpoints
 
 # Byte-compiled / optimized / DLL files
