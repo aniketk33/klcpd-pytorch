@@ -164,7 +164,7 @@ class KL_CPD(nn.Module):
                 preds.append(pred_val)
         return np.concatenate(preds)
 
-    def fit(self, ts, start_epoch, svd_method, components, epoches: int = 200, lr: float = 1e-2, weight_clip: float = .1, weight_decay: float = 0., momentum: float = 0., dataset_name=None):
+    def fit(self, ts, start_epoch, svd_method, components, epoches: int = 100, lr: float = 1e-2, weight_clip: float = .1, weight_decay: float = 0., momentum: float = 0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
         optG_adam = torch.optim.AdamW(
@@ -204,7 +204,7 @@ class KL_CPD(nn.Module):
                 self._optimizeG(batch, optG_rmsprop)
             
             optD_adam.step()
-            optG_adam.step()            
+            optG_adam.step()          
 
             # saving model dict to file after every 5 epochs
             if dataset_name:
@@ -219,7 +219,7 @@ class KL_CPD(nn.Module):
         # print('[%5d/%5d] D_mmd2 %.4e G_mmd2 %.4e mmd2_real %.4e real_L2 %.6f fake_L2 %.6f'
         #   % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
 
-    def _optimizeG(self, batch, opt, lr_scheduler=None, grad_clip: int = 3):
+    def _optimizeG(self, batch, opt, lr_scheduler=None, grad_clip: int = 5):
         X_p, X_f = [batch[key].float().to(self.device)
                     for key in ['X_p', 'X_f']]
         batch_size = X_p.size(0)
@@ -252,7 +252,7 @@ class KL_CPD(nn.Module):
 
         # return G_mmd2.mean().data.item()
 
-    def _optimizeD(self, batch, opt, lr_scheduler=None, grad_clip: int = 3):
+    def _optimizeD(self, batch, opt, lr_scheduler=None, grad_clip: int = 5):
         X_p, X_f, Y_true = [batch[key].float().to(self.device)
                             for key in ['X_p', 'X_f', 'Y']]
         batch_size = X_p.size(0)
