@@ -164,15 +164,20 @@ class KL_CPD(nn.Module):
                 preds.append(pred_val)
         return np.concatenate(preds)
 
-    def fit(self, ts, start_epoch, svd_method, components, epoches: int = 100, lr: float = 1e-3, weight_clip: float = .1, weight_decay: float = 0., momentum: float = 0., dataset_name=None):
+    def fit(self, ts, start_epoch, svd_method, components, epoches: int = 500, lr: float = 1e-3, weight_clip: float = .1, weight_decay: float = 0., momentum: float = 0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
-        optG = torch.optim.AdamW(
+        optG_adam = torch.optim.AdamW(
             self.netG.parameters(), lr=lr, weight_decay=weight_decay)
         # lr_scheduler_g = lr_scheduler.CosineAnnealingLR(optG, T_max=epoches, eta_min=3e-5)
-        optD = torch.optim.AdamW(
+        optD_adam = torch.optim.AdamW(
             self.netD.parameters(), lr=lr, weight_decay=weight_decay)
         # lr_scheduler_d = lr_scheduler.CosineAnnealingLR(optD, T_max=epoches, eta_min=3e-5)
+        optD_rmsprop = torch.optim.RMSprop(
+            self.netD.parameters(), lr=lr, weight_decay=weight_decay, momentum=momentum)
+        optG_rmsprop = torch.optim.RMSprop(
+            self.netG.parameters(), lr=lr, weight_decay=weight_decay, momentum=momentum)
+        
 
         dataset = HankelDataset(
             ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
@@ -189,14 +194,17 @@ class KL_CPD(nn.Module):
                 for p in self.netD.rnn_enc_layer.parameters():
                     p.data.clamp_(-weight_clip, weight_clip)
                 # (D_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss) = self._optimizeD(batch, optD)
-                self._optimizeD(batch, optD)
+                self._optimizeD(batch, optD_rmsprop)
                 # G_mmd2_mean = 0
                 # if np.random.choice(np.arange(self.critic_iters)) == 0:
                 # Fit generator
                 for p in self.netD.parameters():
                     p.requires_grad = False  # to avoid computation
                 # G_mmd2_mean = self._optimizeG(batch, optG)
-                self._optimizeG(batch, optG)
+                self._optimizeG(batch, optG_rmsprop)
+            
+            optD_adam.step()
+            optG_adam.step()            
 
             # saving model dict to file after every 5 epochs
             if dataset_name:
