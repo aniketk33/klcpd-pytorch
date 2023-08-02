@@ -154,7 +154,7 @@ class KL_CPD(nn.Module):
     def predict(self, ts):
         dataset = HankelDataset(
             ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
-        dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
+        dataloader = DataLoader(dataset, batch_size=8, shuffle=False)
         preds = []
         with torch.no_grad():
             for batch in dataloader:
@@ -164,7 +164,7 @@ class KL_CPD(nn.Module):
                 preds.append(pred_val)
         return np.concatenate(preds)
 
-    def fit(self, ts, start_epoch, svd_method, components, epoches: int = 500, lr: float = 1e-3, weight_clip: float = .1, weight_decay: float = 0., momentum: float = 0., dataset_name=None):
+    def fit(self, ts, start_epoch, svd_method, components, epoches: int = 250, lr: float = 1e-6, weight_clip: float = .1, weight_decay: float = 0., momentum: float = 0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
         optG_adam = torch.optim.AdamW(
@@ -181,7 +181,7 @@ class KL_CPD(nn.Module):
 
         dataset = HankelDataset(
             ts, self.p_wnd_dim, self.f_wnd_dim, self.sub_dim)
-        dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
+        dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
         sigma_list = median_heuristic(dataset.Y_hankel, beta=.5)
         self.sigma_var = torch.FloatTensor(sigma_list).to(self.device)
 
@@ -219,7 +219,7 @@ class KL_CPD(nn.Module):
         # print('[%5d/%5d] D_mmd2 %.4e G_mmd2 %.4e mmd2_real %.4e real_L2 %.6f fake_L2 %.6f'
         #   % (epoch+1, epoches, D_mmd2_mean, G_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss))
 
-    def _optimizeG(self, batch, opt, lr_scheduler=None, grad_clip: int = 5):
+    def _optimizeG(self, batch, opt, lr_scheduler=None, grad_clip: int = 3):
         X_p, X_f = [batch[key].float().to(self.device)
                     for key in ['X_p', 'X_f']]
         batch_size = X_p.size(0)
@@ -228,9 +228,8 @@ class KL_CPD(nn.Module):
         X_f_enc, X_f_dec = self.netD(X_f)
 
         # fake data
-        noise = torch.FloatTensor(
-            1, batch_size, self.RNN_hid_dim).uniform_(-1, 1).to(self.device)
-        # noise = torch.FloatTensor(1, batch_size, self.RNN_hid_dim).normal_(0, 1).to(self.device)
+        # noise = torch.FloatTensor(1, batch_size, self.RNN_hid_dim).uniform_(-1, 1).to(self.device)
+        noise = torch.FloatTensor(1, batch_size, self.RNN_hid_dim).normal_(0, 1).to(self.device)
         noise = Variable(noise)
         Y_f = self.netG(X_p, X_f, noise)
         Y_f_enc, Y_f_dec = self.netD(Y_f)
@@ -253,7 +252,7 @@ class KL_CPD(nn.Module):
 
         # return G_mmd2.mean().data.item()
 
-    def _optimizeD(self, batch, opt, lr_scheduler=None, grad_clip: int = 5):
+    def _optimizeD(self, batch, opt, lr_scheduler=None, grad_clip: int = 3):
         X_p, X_f, Y_true = [batch[key].float().to(self.device)
                             for key in ['X_p', 'X_f', 'Y']]
         batch_size = X_p.size(0)
@@ -263,9 +262,8 @@ class KL_CPD(nn.Module):
         X_f_enc, X_f_dec = self.netD(X_f)
 
         # fake data
-        noise = torch.FloatTensor(
-            1, batch_size, self.netG.RNN_hid_dim).uniform_(-1, 1).to(self.device)
-        # noise = torch.FloatTensor(1, batch_size, self.netG.RNN_hid_dim).normal_(0, 1).to(self.device)
+        # noise = torch.FloatTensor(1, batch_size, self.netG.RNN_hid_dim).uniform_(-1, 1).to(self.device)
+        noise = torch.FloatTensor(1, batch_size, self.netG.RNN_hid_dim).normal_(0, 1).to(self.device)
         noise = Variable(noise)  # total freeze netG
         torch.no_grad()
         Y_f = Variable(self.netG(X_p, X_f, noise).data)
