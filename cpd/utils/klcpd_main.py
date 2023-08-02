@@ -164,7 +164,7 @@ class KL_CPD(nn.Module):
                 preds.append(pred_val)
         return np.concatenate(preds)
 
-    def fit(self, ts, start_epoch, svd_method, components, epoches: int = 250, lr: float = 1e-6, weight_clip: float = .1, weight_decay: float = 0., momentum: float = 0., dataset_name=None):
+    def fit(self, ts, start_epoch, svd_method, components, epoches: int = 100, lr: float = 1e-6, weight_clip: float = .1, weight_decay: float = 0., momentum: float = 0., dataset_name=None):
         print('***** Training *****')
         # must be defined in fit() method
         optG_adam = torch.optim.AdamW(
@@ -228,8 +228,8 @@ class KL_CPD(nn.Module):
         X_f_enc, X_f_dec = self.netD(X_f)
 
         # fake data
-        # noise = torch.FloatTensor(1, batch_size, self.RNN_hid_dim).uniform_(-1, 1).to(self.device)
-        noise = torch.FloatTensor(1, batch_size, self.RNN_hid_dim).normal_(0, 1).to(self.device)
+        noise = torch.FloatTensor(1, batch_size, self.RNN_hid_dim).uniform_(-1, 1).to(self.device)
+        # noise = torch.FloatTensor(1, batch_size, self.RNN_hid_dim).normal_(0, 1).to(self.device)
         noise = Variable(noise)
         Y_f = self.netG(X_p, X_f, noise)
         Y_f_enc, Y_f_dec = self.netD(Y_f)
@@ -262,8 +262,8 @@ class KL_CPD(nn.Module):
         X_f_enc, X_f_dec = self.netD(X_f)
 
         # fake data
-        # noise = torch.FloatTensor(1, batch_size, self.netG.RNN_hid_dim).uniform_(-1, 1).to(self.device)
-        noise = torch.FloatTensor(1, batch_size, self.netG.RNN_hid_dim).normal_(0, 1).to(self.device)
+        noise = torch.FloatTensor(1, batch_size, self.netG.RNN_hid_dim).uniform_(-1, 1).to(self.device)
+        # noise = torch.FloatTensor(1, batch_size, self.netG.RNN_hid_dim).normal_(0, 1).to(self.device)
         noise = Variable(noise)  # total freeze netG
         torch.no_grad()
         Y_f = Variable(self.netG(X_p, X_f, noise).data)
