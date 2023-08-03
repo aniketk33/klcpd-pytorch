@@ -86,7 +86,7 @@ class NetD(nn.Module):
 class KL_CPD(nn.Module):
     def __init__(self, D: int, critic_iters: int = 5,
                  lambda_ae: float = 1e-5, lambda_real: float = 1e-3,
-                 p_wnd_dim: int = 5, f_wnd_dim: int = 2, sub_dim: int = 1, RNN_hid_dim: int = 15):
+                 p_wnd_dim: int = 3, f_wnd_dim: int = 2, sub_dim: int = 1, RNN_hid_dim: int = 15):
         super().__init__()
         self.p_wnd_dim = p_wnd_dim
         self.f_wnd_dim = f_wnd_dim
@@ -303,7 +303,7 @@ class KL_CPD(nn.Module):
         plt.plot(self.loss_d_list, label='loss_d')
         plt.legend()
         plt.savefig(
-            f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components}_{dataset_name}_loss.png')
+            f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components}_{dataset_name}_loss_lr3.png')
         plt.show()
 
 
