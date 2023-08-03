@@ -303,7 +303,7 @@ class KL_CPD(nn.Module):
         plt.plot(self.loss_d_list, label='loss_d')
         plt.legend()
         plt.savefig(
-            f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components}_{dataset_name}_loss_lr3.png')
+            f'{PREDS_DIR_PATH}/{curr_time}_{reduction_method}_{components}_{dataset_name}_loss.png')
         plt.show()
 
 
