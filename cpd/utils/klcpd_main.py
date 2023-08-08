@@ -188,7 +188,6 @@ class KL_CPD(nn.Module):
         # tbar = trange(epoches)
         for epoch in tqdm(range(start_epoch, epoches)):
             for batch in dataloader:
-                print(batch)
                 # Fit critic
                 for p in self.netD.parameters():
                     p.requires_grad = True
@@ -196,8 +195,8 @@ class KL_CPD(nn.Module):
                     p.data.clamp_(-weight_clip, weight_clip)
                 # (D_mmd2_mean, mmd2_real_mean, real_L2_loss, fake_L2_loss) = self._optimizeD(batch, optD)
                 # train after every 15 epochs
-                if epoch % 15 == 0:
-                    self._optimizeD(batch, optD_rmsprop)
+                # if epoch % 15 == 0:
+                self._optimizeD(batch, optD_rmsprop)
                 # G_mmd2_mean = 0
                 # if np.random.choice(np.arange(self.critic_iters)) == 0:
                 # Fit generator
