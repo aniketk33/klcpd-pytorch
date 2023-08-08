@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -o /hpcgpfs01/scratch/akumar/code/cpd/protein_data/protein_19ht/SLURM/OUTPUT/random_3.out
 #SBATCH -p volta
-#SBATCH -t 02:30:00
+#SBATCH -t 04:00:00
 #SBATCH --gres=gpu:1
 #SBATCH -A student-v
 #SBATCH -J 19ht_r_3
